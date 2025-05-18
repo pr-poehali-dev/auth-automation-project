@@ -156,6 +156,7 @@ const Dashboard = () => {
       {/* Основное содержимое */}
       <main className="flex-1 overflow-y-auto flex flex-col">
         {/* Верхняя панель */}
+        {/* Верхняя панель */}
         <header className="border-b bg-card p-4 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-2">
             {/* Кнопка меню для мобильных устройств */}
@@ -165,6 +166,18 @@ const Dashboard = () => {
             <h2 className="font-semibold text-lg">Панель управления</h2>
           </div>
           <div className="flex items-center gap-4">
+            {/* Добавлено поле быстрого поиска */}
+            <div className="relative hidden md:block w-64">
+              <Input
+                type="search"
+                placeholder="Поиск пользователей..."
+                className="w-full pl-9 h-9"
+              />
+              <Icon
+                name="Search"
+                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+              />
+            </div>
             <Button variant="outline" size="icon">
               <Bell className="h-4 w-4" />
             </Button>

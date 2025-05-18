@@ -1,10 +1,14 @@
-
 import { useState } from "react";
-import { 
-  Shield, Save, RotateCcw, ArrowLeft
-} from "lucide-react";
+import { Shield, Save, RotateCcw, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
@@ -35,39 +39,39 @@ const RolePermissions = () => {
   const [activeRole, setActiveRole] = useState("helper");
   const [changesMade, setChangesMade] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  
+
   // Список стандартных прав для всех ролей
   const standardPermissions: RolePermission[] = [
-    { 
-      id: "view_earnings", 
-      name: "Просмотр заработка", 
+    {
+      id: "view_earnings",
+      name: "Просмотр заработка",
       description: "Возможность просматривать данные о заработке",
-      enabled: true 
+      enabled: true,
     },
-    { 
-      id: "register_users", 
-      name: "Регистрация пользователей", 
+    {
+      id: "register_users",
+      name: "Регистрация пользователей",
       description: "Возможность создавать новых пользователей в системе",
-      enabled: true 
+      enabled: true,
     },
-    { 
-      id: "view_subordinates", 
-      name: "Просмотр подчиненных", 
+    {
+      id: "view_subordinates",
+      name: "Просмотр подчиненных",
       description: "Возможность просматривать список своих подчиненных",
-      enabled: true 
+      enabled: true,
     },
-    { 
-      id: "manage_subordinates", 
-      name: "Управление подчиненными", 
+    {
+      id: "manage_subordinates",
+      name: "Управление подчиненными",
       description: "Возможность добавлять и удалять своих подчиненных",
-      enabled: false 
+      enabled: false,
     },
-    { 
-      id: "add_logs", 
-      name: "Добавление логов", 
+    {
+      id: "add_logs",
+      name: "Добавление логов",
       description: "Возможность добавлять логи для пользователей",
-      enabled: false 
-    }
+      enabled: false,
+    },
   ];
 
   // Начальное состояние ролей
@@ -77,62 +81,132 @@ const RolePermissions = () => {
       name: "helper",
       displayName: "Хелпер",
       description: "Помогает пользователям и управляет их учетными записями",
-      permissions: standardPermissions.map(p => ({...p}))
+      permissions: standardPermissions.map((p) => ({ ...p })),
     },
     {
       id: "recruiter",
       name: "recruiter",
       displayName: "Рекрутёр",
       description: "Занимается наймом новых сотрудников",
-      permissions: standardPermissions.map(p => ({...p, enabled: p.id === "register_users"}))
+      permissions: standardPermissions.map((p) => ({
+        ...p,
+        enabled: p.id === "register_users",
+      })),
     },
     {
       id: "caller",
       name: "caller",
       displayName: "Коллер",
       description: "Совершает звонки клиентам",
-      permissions: standardPermissions.map(p => ({...p, enabled: false}))
+      permissions: standardPermissions.map((p) => ({ ...p, enabled: false })),
     },
     {
       id: "voicer",
       name: "voicer",
       displayName: "Войсер",
       description: "Общается с клиентами по голосовой связи",
-      permissions: standardPermissions.map(p => ({...p, enabled: false}))
+      permissions: standardPermissions.map((p) => ({ ...p, enabled: false })),
     },
     {
       id: "user",
       name: "user",
       displayName: "Пользователь",
       description: "Обычный пользователь системы",
-      permissions: standardPermissions.map(p => ({...p, enabled: false}))
-    }
+      permissions: standardPermissions.map((p) => ({ ...p, enabled: false })),
+    },
   ]);
 
   // Обработчик изменения прав
-  const handlePermissionChange = (roleId: string, permissionId: string, enabled: boolean) => {
-    setRoles(prev => 
-      prev.map(role => 
-        role.id === roleId 
+  const handlePermissionChange = (
+    roleId: string,
+    permissionId: string,
+    enabled: boolean,
+  ) => {
+    setRoles((prev) =>
+      prev.map((role) =>
+        role.id === roleId
           ? {
               ...role,
-              permissions: role.permissions.map(perm => 
-                perm.id === permissionId 
-                  ? { ...perm, enabled } 
-                  : perm
-              )
+              permissions: role.permissions.map((perm) =>
+                perm.id === permissionId ? { ...perm, enabled } : perm,
+              ),
             }
-          : role
-      )
+          : role,
+      ),
     );
     setChangesMade(true);
     setSaveSuccess(false);
   };
 
+  // Функция для проверки, изменились ли права роли относительно исходных
+  const hasRoleChanged = (role: Role, initialRoles: Role[]): boolean => {
+    const initialRole = initialRoles.find((r) => r.id === role.id);
+    if (!initialRole) return true;
+
+    return role.permissions.some((perm) => {
+      const initialPerm = initialRole.permissions.find((p) => p.id === perm.id);
+      return initialPerm?.enabled !== perm.enabled;
+    });
+  };
+
   // Обработчик сохранения изменений
   const handleSave = () => {
-    // Здесь должна быть логика сохранения в БД
-    console.log("Сохранение прав ролей:", roles);
+    // Получение только измененных ролей для отправки на сервер
+    const changedRoles = roles.filter((role) =>
+      hasRoleChanged(role, [
+        {
+          id: "helper",
+          name: "helper",
+          displayName: "Хелпер",
+          description:
+            "Помогает пользователям и управляет их учетными записями",
+          permissions: standardPermissions.map((p) => ({ ...p })),
+        },
+        {
+          id: "recruiter",
+          name: "recruiter",
+          displayName: "Рекрутёр",
+          description: "Занимается наймом новых сотрудников",
+          permissions: standardPermissions.map((p) => ({
+            ...p,
+            enabled: p.id === "register_users",
+          })),
+        },
+        {
+          id: "caller",
+          name: "caller",
+          displayName: "Коллер",
+          description: "Совершает звонки клиентам",
+          permissions: standardPermissions.map((p) => ({
+            ...p,
+            enabled: false,
+          })),
+        },
+        {
+          id: "voicer",
+          name: "voicer",
+          displayName: "Войсер",
+          description: "Общается с клиентами по голосовой связи",
+          permissions: standardPermissions.map((p) => ({
+            ...p,
+            enabled: false,
+          })),
+        },
+        {
+          id: "user",
+          name: "user",
+          displayName: "Пользователь",
+          description: "Обычный пользователь системы",
+          permissions: standardPermissions.map((p) => ({
+            ...p,
+            enabled: false,
+          })),
+        },
+      ]),
+    );
+
+    console.log("Сохранение измененных прав ролей:", changedRoles);
+
     // Имитация успешного сохранения
     setTimeout(() => {
       setSaveSuccess(true);
@@ -149,36 +223,39 @@ const RolePermissions = () => {
         name: "helper",
         displayName: "Хелпер",
         description: "Помогает пользователям и управляет их учетными записями",
-        permissions: standardPermissions.map(p => ({...p}))
+        permissions: standardPermissions.map((p) => ({ ...p })),
       },
       {
         id: "recruiter",
         name: "recruiter",
         displayName: "Рекрутёр",
         description: "Занимается наймом новых сотрудников",
-        permissions: standardPermissions.map(p => ({...p, enabled: p.id === "register_users"}))
+        permissions: standardPermissions.map((p) => ({
+          ...p,
+          enabled: p.id === "register_users",
+        })),
       },
       {
         id: "caller",
         name: "caller",
         displayName: "Коллер",
         description: "Совершает звонки клиентам",
-        permissions: standardPermissions.map(p => ({...p, enabled: false}))
+        permissions: standardPermissions.map((p) => ({ ...p, enabled: false })),
       },
       {
         id: "voicer",
         name: "voicer",
         displayName: "Войсер",
         description: "Общается с клиентами по голосовой связи",
-        permissions: standardPermissions.map(p => ({...p, enabled: false}))
+        permissions: standardPermissions.map((p) => ({ ...p, enabled: false })),
       },
       {
         id: "user",
         name: "user",
         displayName: "Пользователь",
         description: "Обычный пользователь системы",
-        permissions: standardPermissions.map(p => ({...p, enabled: false}))
-      }
+        permissions: standardPermissions.map((p) => ({ ...p, enabled: false })),
+      },
     ]);
     setChangesMade(false);
     setSaveSuccess(false);
@@ -188,11 +265,11 @@ const RolePermissions = () => {
     <div className="min-h-screen bg-background">
       <div className="container py-8 max-w-5xl">
         <div className="flex items-center gap-4 mb-8">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             className="h-8 w-8"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate("/dashboard")}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -221,8 +298,8 @@ const RolePermissions = () => {
               <div className="flex justify-between items-center">
                 <CardTitle>Настройка прав ролей</CardTitle>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleReset}
                     disabled={!changesMade}
@@ -230,7 +307,7 @@ const RolePermissions = () => {
                     <RotateCcw className="mr-2 h-4 w-4" />
                     Сбросить
                   </Button>
-                  <Button 
+                  <Button
                     size="sm"
                     onClick={handleSave}
                     disabled={!changesMade}
@@ -245,11 +322,16 @@ const RolePermissions = () => {
               </CardDescription>
             </CardHeader>
 
-            <Tabs defaultValue="helper" value={activeRole} onValueChange={setActiveRole} className="w-full">
+            <Tabs
+              defaultValue="helper"
+              value={activeRole}
+              onValueChange={setActiveRole}
+              className="w-full"
+            >
               <TabsList className="w-full grid grid-cols-5 mb-4">
-                {roles.map(role => (
-                  <TabsTrigger 
-                    key={role.id} 
+                {roles.map((role) => (
+                  <TabsTrigger
+                    key={role.id}
                     value={role.id}
                     className="text-sm capitalize"
                   >
@@ -258,20 +340,31 @@ const RolePermissions = () => {
                 ))}
               </TabsList>
 
-              {roles.map(role => (
-                <TabsContent key={role.id} value={role.id} className="space-y-4">
+              {roles.map((role) => (
+                <TabsContent
+                  key={role.id}
+                  value={role.id}
+                  className="space-y-4"
+                >
                   <div className="px-6">
-                    <h3 className="text-lg font-medium mb-1">{role.displayName}</h3>
-                    <p className="text-sm text-muted-foreground mb-4">{role.description}</p>
+                    <h3 className="text-lg font-medium mb-1">
+                      {role.displayName}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {role.description}
+                    </p>
 
                     <Separator className="my-4" />
 
                     <div className="space-y-4">
-                      {role.permissions.map(permission => (
-                        <div key={permission.id} className="flex items-center justify-between">
+                      {role.permissions.map((permission) => (
+                        <div
+                          key={permission.id}
+                          className="flex items-center justify-between"
+                        >
                           <div className="flex-1">
-                            <Label 
-                              htmlFor={`${role.id}-${permission.id}`} 
+                            <Label
+                              htmlFor={`${role.id}-${permission.id}`}
                               className="font-medium cursor-pointer"
                             >
                               {permission.name}
@@ -280,11 +373,15 @@ const RolePermissions = () => {
                               {permission.description}
                             </p>
                           </div>
-                          <Switch 
+                          <Switch
                             id={`${role.id}-${permission.id}`}
                             checked={permission.enabled}
-                            onCheckedChange={(checked) => 
-                              handlePermissionChange(role.id, permission.id, checked)
+                            onCheckedChange={(checked) =>
+                              handlePermissionChange(
+                                role.id,
+                                permission.id,
+                                checked,
+                              )
                             }
                           />
                         </div>
@@ -296,10 +393,7 @@ const RolePermissions = () => {
             </Tabs>
 
             <CardFooter className="justify-end pt-4 border-t mt-6">
-              <Button 
-                onClick={handleSave}
-                disabled={!changesMade}
-              >
+              <Button onClick={handleSave} disabled={!changesMade}>
                 <Save className="mr-2 h-4 w-4" />
                 Сохранить изменения
               </Button>

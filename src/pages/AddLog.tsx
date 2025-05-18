@@ -219,16 +219,22 @@ const AddLog = () => {
                     <SelectValue placeholder="Выберите пользователя" />
                   </SelectTrigger>
                   <SelectContent>
-                    {USERS.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        <div className="flex items-center">
-                          <span>{user.name}</span>
-                          <span className="ml-2 text-xs text-muted-foreground">
-                            ({user.role})
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {USERS.length > 0 ? (
+                      USERS.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          <div className="flex items-center">
+                            <span>{user.name}</span>
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              ({user.role})
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="p-2 text-center text-muted-foreground">
+                        <p className="text-sm">Нет доступных пользователей</p>
+                      </div>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

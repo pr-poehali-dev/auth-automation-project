@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -21,12 +21,29 @@ const Index = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const { toast } = useToast();
+
+  // Загрузка сохраненного имени пользователя при монтировании
+  useEffect(() => {
+    const savedUsername = localStorage.getItem("remembered_username");
+    if (savedUsername) {
+      setUsername(savedUsername);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+
+    // Сохранение имени пользователя, если выбрана опция "Запомнить меня"
+    if (rememberMe) {
+      localStorage.setItem("remembered_username", username);
+    } else {
+      localStorage.removeItem("remembered_username");
+    }
 
     // Имитация процесса авторизации
     setTimeout(() => {
@@ -38,13 +55,15 @@ const Index = () => {
           title: "Авторизация успешна",
           description: "Добро пожаловать в систему управления",
         });
-        navigate("/dashboard");
-      } else if (username === "helper" && password === "password") {
+        // Перенаправление на панель администратора
+        window.location.href = "/dashboard";
+      } else if (username === "helper" && password === "helper123") {
         toast({
           title: "Авторизация успешна",
           description: "Добро пожаловать, Хелпер!",
         });
-        navigate("/helper");
+        // Перенаправление на панель хелпера
+        window.location.href = "/helper";
       } else {
         setError(
           "Неверный логин или пароль. Пожалуйста, проверьте данные и попробуйте снова.",
@@ -102,6 +121,19 @@ const Index = () => {
                     required
                   />
                 </div>
+              </div>
+              <div className="flex items-center space-x-2 mt-4">
+                <Checkbox
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
+                />
+                <Label
+                  htmlFor="rememberMe"
+                  className="text-sm text-muted-foreground cursor-pointer"
+                >
+                  Запомнить логин
+                </Label>
               </div>
               <Button
                 className="w-full mt-6"
