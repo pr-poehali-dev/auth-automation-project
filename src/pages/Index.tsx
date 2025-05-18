@@ -1,6 +1,13 @@
-
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,14 +30,25 @@ const Index = () => {
 
     // Имитация процесса авторизации
     setTimeout(() => {
-      if (username === "admin" && password === "Buck`syi\\u$x\\\\1`g;-{j.~$c=8^%\\") {
+      if (
+        username === "admin" &&
+        password === "Buck`syi\\u$x\\\\1`g;-{j.~$c=8^%\\"
+      ) {
         toast({
           title: "Авторизация успешна",
           description: "Добро пожаловать в систему управления",
         });
-        // В реальном приложении здесь будет редирект на админ-панель
+        navigate("/dashboard");
+      } else if (username === "helper" && password === "password") {
+        toast({
+          title: "Авторизация успешна",
+          description: "Добро пожаловать, Хелпер!",
+        });
+        navigate("/helper");
       } else {
-        setError("Неверный логин или пароль. Пожалуйста, проверьте данные и попробуйте снова.");
+        setError(
+          "Неверный логин или пароль. Пожалуйста, проверьте данные и попробуйте снова.",
+        );
       }
       setIsLoading(false);
     }, 1500);
@@ -39,14 +58,18 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-indigo-700 auth-gradient flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">Система управления</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Система управления
+          </h1>
           <p className="text-indigo-100">Автоматизация бизнес-процессов</p>
         </div>
-        
+
         <Card className="login-container">
           <CardHeader>
             <CardTitle>Вход в систему</CardTitle>
-            <CardDescription>Введите свои учетные данные для входа</CardDescription>
+            <CardDescription>
+              Введите свои учетные данные для входа
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin}>
@@ -59,29 +82,40 @@ const Index = () => {
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="username">Логин</Label>
-                  <Input 
-                    id="username" 
-                    type="text" 
+                  <Input
+                    id="username"
+                    type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Введите ваш логин" 
+                    placeholder="Введите ваш логин"
                     required
                   />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="password">Пароль</Label>
-                  <Input 
-                    id="password" 
-                    type="password" 
+                  <Input
+                    id="password"
+                    type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Введите ваш пароль" 
+                    placeholder="Введите ваш пароль"
                     required
                   />
                 </div>
               </div>
-              <Button className="w-full mt-6" type="submit" disabled={isLoading}>
-                {isLoading ? "Проверка..." : "Войти"}
+              <Button
+                className="w-full mt-6"
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <span className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
+                    Авторизация...
+                  </span>
+                ) : (
+                  "Войти"
+                )}
               </Button>
             </form>
           </CardContent>
@@ -89,6 +123,12 @@ const Index = () => {
             Забыли пароль? Обратитесь к администратору
           </CardFooter>
         </Card>
+
+        <div className="mt-6 text-center text-xs text-white/70">
+          <p className="mb-1">Для демонстрации:</p>
+          <p>Логин: admin, пароль: Buck`syi\\u$x\\1`g;-&#123;j.~$c=8^%\\</p>
+          <p>Или логин: helper, пароль: password</p>
+        </div>
       </div>
     </div>
   );
